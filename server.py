@@ -3,6 +3,7 @@ import logging
 import os
 import socket
 import sys
+from threading import Thread
 
 import main
 
@@ -49,8 +50,12 @@ def echo_server(port):
             log.info("sent %s bytes back to %s" % (data, address))
         # end connection
         client.close()
+        break
 
 
 if __name__ == '__main__':
     port = 2000
-    echo_server(port)
+    thread = Thread(target=echo_server, args=(port, ))
+    thread.start()
+    thread.join()
+    print("thread finished...exiting")
