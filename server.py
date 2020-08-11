@@ -1,8 +1,10 @@
-import socket
-import click
+import json
 import logging
 import os
+import socket
 import sys
+
+import main
 
 log = logging.getLogger("application")
 hdlr = logging.FileHandler(os.getcwd() + "\\server_logs.txt")
@@ -34,9 +36,16 @@ def echo_server(port):
         log.info("Waiting to receive message from client")
         client, address = sock.accept()
         data = client.recv(data_payload)
+        nums = [int(s) for s in list(data.decode("utf-8")) if s.isdigit()]
+        message1 = dict({"sum": main.sum_by_reduce(nums)})
+        message2 = dict({"min": min(nums)})
+        message3 = dict({"max": max(nums)})
+        message4 = dict({"number of unique elements": len(set(nums))})
+        message = {"result": [message1, message2, message3, message4]}
+        data = json.dumps(message)
         if data:
             log.info("Data: %s" % data)
-            client.send(data)
+            client.send(bytes(data, encoding="utf-8"))
             log.info("sent %s bytes back to %s" % (data, address))
         # end connection
         client.close()

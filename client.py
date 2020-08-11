@@ -1,12 +1,10 @@
-import socket
-import click
-import main
-import json
 import logging
 import os
+import socket
 import sys
 from multiprocessing import Process, Value, Array
 
+import click
 
 log = logging.getLogger("application")
 hdlr = logging.FileHandler(os.getcwd() + "\\client_logs.txt")
@@ -33,22 +31,10 @@ def echo_client(port, numbers):
     try:
         # Send data
         nums = numbers[:]
-        message1 = dict({"sum": main.sum_by_reduce(nums)})
-        message2 = dict({"min": min(nums)})
-        message3 = dict({"max": max(nums)})
-        message4 = dict({"number of unique elements": len(set(nums))})
-        message = {"result": [message1, message2, message3, message4]}
-        log.info("Sending %s" % message)
+        sock.sendall(bytes(str(nums), encoding='utf8'))
 
-        sock.sendall(bytes(json.dumps(message), encoding='utf8'))
-
-        # Look for the response
-        amount_received = 0
-        amount_expected = len(message)
-        while amount_received < amount_expected:
-            data = sock.recv(4096)
-            amount_received += len(data)
-            log.info("Received: %s" % str(data))
+        data = sock.recv(4096)
+        log.info("Received: %s" % str(data))
     except socket.error as e:
         log.error("Socket error: %s" % str(e))
     except Exception as e:
